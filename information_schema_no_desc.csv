@@ -1,4 +1,4 @@
-schema_name,table_name,column_name,data_type
+schema_name,table_name,column_name,data_type,description
 customer_success,fct_book_of_business,fellow_workspace_id,integer
 customer_success,fct_book_of_business,label,character varying
 customer_success,fct_book_of_business,valid_from,date
@@ -9,7 +9,7 @@ customer_success,fct_net_promoter_score,score,integer
 customer_success,fct_net_promoter_score,survicate_survey_response_id,character varying
 customer_success,fct_net_promoter_score,user_id,integer
 customer_success,fct_net_promoter_score,workspace_id,integer
-engagement,fct_user_activity,is_active,boolean
+engagement,fct_user_activity,active_this_day,boolean
 engagement,fct_user_activity,app_score__partial,bigint
 engagement,fct_user_activity,assigned_action_item__note_block_count,bigint
 engagement,fct_user_activity,assigned_action_item__note_count,bigint
@@ -1348,7 +1348,7 @@ product_core,dim_fellow_workspace,company__hubspot_company_id,bigint
 product_core,dim_fellow_workspace,company__industry,character varying
 product_core,dim_fellow_workspace,company__industry__category,character varying
 product_core,dim_fellow_workspace,company__name,character varying
-product_core,dim_fellow_workspace,company__size_category,character varying
+product_core,dim_fellow_workspace,company__size_category,character varying, based on employee count: 'ENT-2' (5000+) 'ENT-1' (1000-4999) 'MM-2' (500-999) 'MM-1' (200-499) 'SMB-2' (50-199) 'SMB-1' (10-49) and 'Sub-10' (1-9)
 product_core,dim_fellow_workspace,company__size_category__legacy_01,character varying
 product_core,dim_fellow_workspace,company__size_category__legacy_02,character varying
 product_core,dim_fellow_workspace,company__size_category__proposed__20230820,character varying

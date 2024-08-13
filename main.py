@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import warnings
 from openai import OpenAI
 import json
+from prompts import prompt_list
 
 warnings.filterwarnings('ignore')
 
@@ -42,7 +43,7 @@ def get_relevant_tables(data_request):
                 Please identify the most relevant tables based on the user's request.
 
                 ## Instructions
-                1. The available tables and their columns are provided in the dictionary format: {information_tables.to_dict()}.
+                1. The available tables and their columns are provided in the dictionary format: {information_tables.to_json(orient="records")}.
                 2. List the relevant tables, avoiding any redundancy.
                 3. Output only the list of table names, separated by commas, without any comments or extra information.
 
@@ -64,7 +65,13 @@ def get_relevant_tables(data_request):
 def get_columns(suggested_tables, data_request):
     suggested_tables = [table.strip() for table in suggested_tables]
     all_columns = information_columns[information_columns['table_name'].isin(suggested_tables)]
-    all_columns = all_columns.groupby(['schema_name', 'table_name'])['column_name'].apply(list).to_dict()
+    all_columns = all_columns.groupby(['schema_name', 'table_name']).apply(
+    lambda x: {
+        'column_name': x['column_name'].tolist(),
+        'data_type': x['data_type'].tolist(),
+        'description': x['description'].tolist()
+        }
+    ).to_dict()
     prompt ="""
                 ## Task
                 Given the user's request and the available tables and columns, provide a shorter list of columns that are most relevant to the request. 
@@ -95,10 +102,10 @@ def generate_sql_query(table_columns):
             Construct a complete PostgreSQL query based on the user's request and the available tables and columns.
 
             ## Instructions
-            1. Scan through all available tables and columns before proceeding.
+            1. Scan through all available tables and columns before proceeding, read the column data type and description carefully.
             2. Clearly match each requested column with its corresponding schema and table in the database.
             3. If some columns need to be derived or calculated, specify how this should be done using the existing data.
-            4. Write a straightforward and efficient SQL query, avoiding complex joins or subqueries unless absolutely necessary.
+            4. Write a straightforward and efficient SQL query, avoiding complex joins or subqueries unless absolutely necessary, do not use alias for tables or ctes.
             5. Ensure that all column references include their respective schema and table names for clarity.
             6. Output only the SQL query, with no additional comments or explanations.
             7. Ensure that the query is clear and directly executable in a standard PostgreSQL environment.
@@ -130,7 +137,7 @@ def generate_sql_query(table_columns):
     return sql_query
 
 
-data_request = "can we get a report for workspace 156161 of users who have the Chrome extension and users who dont please. On the report can you include name, email, chrome extension use, and last active date if possible?"
+data_request = prompt_list[2]
 suggested_tables = get_relevant_tables(data_request)
 print("******************************************************************************************************************************************************************")
 print(suggested_tables)
